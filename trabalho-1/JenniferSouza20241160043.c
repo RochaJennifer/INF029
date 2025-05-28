@@ -26,7 +26,10 @@
 #include "JenniferSouza20241160043.h" // Substitua pelo seu arquivo de header renomeado
 #include <stdlib.h>
 
-DataQuebrada quebraData(char data[]);
+// Função auxiliar para verificar se um ano é bissexto
+int ehBissexto(int ano) {
+    return (ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0);
+}
 
 /*
 ## função utilizada para testes  ##
@@ -91,19 +94,40 @@ int teste(int a)
     Não utilizar funções próprias de string (ex: strtok)   
     pode utilizar strlen para pegar o tamanho da string
  */
-int q1(char data[])
-{
-  int datavalida = 1;
+int q1(char data[]) {
+    DataQuebrada dq = quebraData(data);
 
-  //quebrar a string data em strings sDia, sMes, sAno
+    if (dq.valido == 0) {
+        return 0; // Formato inválido ou problema na quebra
+    }
 
+    // Ajuste de ano para 4 dígitos se vier com 2
+    if (dq.iAno >= 0 && dq.iAno <= 99) {
+        if (dq.iAno >= 0 && dq.iAno <= 23) { // Assumindo que 00-23 são anos de 2000-2023
+            dq.iAno += 2000;
+        } else { // 24-99 são anos de 1924-1999
+            dq.iAno += 1900;
+        }
+    } else if (dq.iAno < 0 || dq.iAno > 9999) { // Anos fora de um range razoável
+        return 0;
+    }
 
-  //printf("%s\n", data);
+    // Validação do mês
+    if (dq.iMes < 1 || dq.iMes > 12) {
+        return 0;
+    }
 
-  if (datavalida)
-      return 1;
-  else
-      return 0;
+    // Validação do dia
+    int diasNoMes[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if (ehBissexto(dq.iAno)) {
+        diasNoMes[2] = 29; // Fevereiro em ano bissexto
+    }
+
+    if (dq.iDia < 1 || dq.iDia > diasNoMes[dq.iMes]) {
+        return 0;
+    }
+
+    return 1; // Se passou por todas as verificações, a data é válida
 }
 
 
