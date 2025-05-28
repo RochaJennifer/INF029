@@ -31,6 +31,34 @@ int ehBissexto(int ano) {
     return (ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0);
 }
 
+int somar(int x, int y)
+{
+    int soma;
+    soma = x + y;
+    return soma;
+}
+
+int fatorial(int x)
+{ //função utilizada para testes
+  int i, fat = 1;
+    
+  for (i = x; i > 1; i--)
+    fat = fat * i;
+    
+  return fat;
+}
+
+int teste(int a)
+{
+    int val;
+    if (a == 2)
+        val = 3;
+    else
+        val = 4;
+
+    return val;
+}
+
 /*
  Q1 = validar data
 @objetivo
@@ -180,10 +208,26 @@ DiasMesesAnos q2(char datainicial[], char datafinal[]) {
  @saida
     Um número n >= 0.
  */
-int q3(char *texto, char c, int isCaseSensitive)
-{
-    int qtdOcorrencias = -1;
+int q3(char *texto, char c, int isCaseSensitive) {
+    int qtdOcorrencias = 0;
+    int i = 0;
 
+    // Percorre a string texto
+    while (texto[i] != '\0') {
+        char charDoTexto = texto[i];
+        
+        if (isCaseSensitive == 1) { // Case Sensitive
+            if (charDoTexto == c) {
+                qtdOcorrencias++;
+            }
+        } else { // Case Insensitive
+            // Converte ambos para minúsculo para comparação
+            if (tolower(charDoTexto) == tolower(c)) {
+                qtdOcorrencias++;
+            }
+        }
+        i++;
+    }
     return qtdOcorrencias;
 }
 
@@ -202,10 +246,38 @@ int q3(char *texto, char c, int isCaseSensitive)
         O retorno da função, n, nesse caso seria 1;
 
  */
-int q4(char *strTexto, char *strBusca, int posicoes[30])
-{
-    int qtdOcorrencias = -1;
+int q4(char *strTexto, char *strBusca, int posicoes[30]) {
+    int qtdOcorrencias = 0;
+    int lenTexto = 0;
+    while(strTexto[lenTexto] != '\0') {
+        lenTexto++;
+    }
+    int lenBusca = 0;
+    while(strBusca[lenBusca] != '\0') {
+        lenBusca++;
+    }
+    
+    int idxPosicoes = 0;
 
+    if (lenBusca == 0 || lenBusca > lenTexto) {
+        return 0; // Palavra de busca vazia ou maior que o texto
+    }
+
+    for (int i = 0; i <= lenTexto - lenBusca; i++) {
+        int match = 1; // Assume que há uma correspondência
+        for (int j = 0; j < lenBusca; j++) {
+            // Comparação case insensitive, conforme testado no corretor.c (ex: "rato" em "Ratos")
+            if (tolower(strTexto[i + j]) != tolower(strBusca[j])) {
+                match = 0; // Não corresponde
+                break;
+            }
+        }
+        if (match) {
+            posicoes[idxPosicoes++] = i + 1; // Posição de início (contando de 1)
+            posicoes[idxPosicoes++] = i + lenBusca; // Posição de fim (contando de 1)
+            qtdOcorrencias++;
+        }
+    }
     return qtdOcorrencias;
 }
 
@@ -219,10 +291,23 @@ int q4(char *strTexto, char *strBusca, int posicoes[30])
     Número invertido
  */
 
-int q5(int num)
-{
+int q5(int num) {
+    int invertido = 0;
+    int sinal = 1;
 
-    return num;
+    if (num < 0) {
+        sinal = -1;
+        num = -num; // Trabalha com o valor absoluto
+    } else if (num == 0) {
+        return 0; // O inverso de 0 é 0
+    }
+
+    while (num > 0) {
+        int digito = num % 10;
+        invertido = invertido * 10 + digito;
+        num /= 10;
+    }
+    return invertido * sinal;
 }
 
 /*
@@ -235,10 +320,51 @@ int q5(int num)
     Quantidade de vezes que número de busca ocorre em número base
  */
 
-int q6(int numerobase, int numerobusca)
-{
-    int qtdOcorrencias;
-    return qtdOcorrencias;
+int q6(int numerobase, int numerobusca) {
+    if (numerobase == 0 && numerobusca == 0) return 1;
+    if (numerobusca == 0) { // Se o número de busca for 0 e o base não for 0
+        int count = 0;
+        // Converte numerobase para string para iterar pelos dígitos
+        char strBase[20];
+        sprintf(strBase, "%d", numerobase);
+        for(int i = 0; strBase[i] != '\0'; i++){
+            if(strBase[i] == '0') count++;
+        }
+        return count;
+    }
+
+    // Lida com números negativos convertendo para positivo para a busca
+    int tempBase = numerobase;
+    int tempBusca = numerobusca;
+    if (tempBase < 0) tempBase = -tempBase;
+    if (tempBusca < 0) tempBusca = -tempBusca;
+
+    // Converte os números para strings para facilitar a busca de substrings
+    char sBase[20], sBusca[20];
+    sprintf(sBase, "%d", tempBase);
+    sprintf(sBusca, "%d", tempBusca);
+
+    int count = 0;
+    int lenBase = strlen(sBase);
+    int lenBusca = strlen(sBusca);
+
+    if (lenBusca == 0 || lenBusca > lenBase) {
+        return 0;
+    }
+
+    for (int i = 0; i <= lenBase - lenBusca; i++) {
+        int match = 1;
+        for (int j = 0; j < lenBusca; j++) {
+            if (sBase[i + j] != sBusca[j]) {
+                match = 0;
+                break;
+            }
+        }
+        if (match) {
+            count++;
+        }
+    }
+    return count;
 }
 
 /*
@@ -251,11 +377,53 @@ int q6(int numerobase, int numerobusca)
     1 se achou 0 se não achou
  */
 
- int q7(char matriz[8][10], char palavra[5])
- {
-     int achou;
-     return achou;
- }
+ int q7(char matriz[8][10], char palavra[5]) {
+    int linhas = 8;
+    int colunas = 10;
+    int lenPalavra = 0;
+    while(palavra[lenPalavra] != '\0') {
+        lenPalavra++;
+    }
+
+    if (lenPalavra == 0) return 0; // Palavra vazia
+
+    // Direções: Horizontal, Vertical, Diagonal (principal e secundária)
+    // dx[] e dy[] representam os offsets para mover em cada uma das 8 direções
+    // Ex: dx[0]=0, dy[0]=1 -> direita; dx[1]=0, dy[1]=-1 -> esquerda, etc.
+    int dx[] = {0, 0, 1, -1, 1, 1, -1, -1};
+    int dy[] = {1, -1, 0, 0, 1, -1, 1, -1};
+
+    for (int r = 0; r < linhas; r++) {
+        for (int c = 0; c < colunas; c++) {
+            // Se o primeiro caracter da palavra for encontrado na matriz
+            if (matriz[r][c] == palavra[0]) {
+                // Tenta buscar a palavra em todas as 8 direções
+                for (int d = 0; d < 8; d++) {
+                    int match = 1;
+                    for (int k = 1; k < lenPalavra; k++) {
+                        int nr = r + dx[d] * k; // Nova linha
+                        int nc = c + dy[d] * k; // Nova coluna
+
+                        // Verifica se está dentro dos limites da matriz
+                        if (nr < 0 || nr >= linhas || nc < 0 || nc >= colunas) {
+                            match = 0;
+                            break;
+                        }
+                        // Verifica se o caracter corresponde
+                        if (matriz[nr][nc] != palavra[k]) {
+                            match = 0;
+                            break;
+                        }
+                    }
+                    if (match) {
+                        return 1; // Achou a palavra
+                    }
+                }
+            }
+        }
+    }
+    return 0; // Não achou a palavra em nenhuma direção
+}
 
 
 
